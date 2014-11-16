@@ -128,4 +128,22 @@ function Menu()
 			Menu:addTS(TargetSelector)
 end
 		
-
+function Combo()
+			if ValidTarget(Target) and Target ~= nil then
+				if Menu.combo.comboItems then
+					UseItems(Target)
+				end
+				CastQ(Target)
+				if KatarinaMenu.combo.detonateQ and GetTickCount() >= SkillQ.timeToHit then
+					if not SkillQ.ready then CastE(Target) end
+					if not SkillE.ready then CastW(Target) end
+				elseif not KatarinaMenu.combo.detonateQ then
+					CastE(Target)
+					CastW(Target)
+				end
+				CastR()
+			end
+		end
+	---<
+	--- Combo While Not Channeling --
+end
