@@ -21,18 +21,29 @@ function OnTick()
 		Checks()
 		DamageCalculation()
 		
+		if Target then
+			if Menu.harass.autoW then CastW(Target) end
+			if Menu.killsteal.Ignite then AutoIgnite(Target) end
+		
 		ComboKey = Menu.combo.comboKey
 		HarassKey = Menu.harass.harassKey
 		FarmingKey = Menu.farming.farmKey
+		ClearKey = Menu.clear.clearKey
 		
 		if ComboKey then
 			Combo()
 		end
 		if HarassKey then
-			Combo()
+			Harass()
 		end
 		if FarmingKey then
 			Farm()
+		end
+		if ClearKey then
+			Clear()
+		end
+		if Menu.killsteal.useks then
+			KillSteal()
 		end
 end
 
@@ -50,13 +61,12 @@ function Variables()
 		mSOW = SOW(vPred)
 		STS = SimpleTS()
 		DM = DrawManager()
-		FlashSlot()
- 
-       		W:SetSkillshot(vPred, SKILLSHOT_CONE, skillW.width, skillW.delay, skillW.speed, false)
-		R:SetSkillshot(vPred, SKILLSHOT_CIRCULAR, skillR.width, skillR.delay, skillR.speed, false)
+
+       		skillW:SetSkillshot(vPred, SKILLSHOT_CONE, skillW.width, skillW.delay, skillW.speed, false)
+		skillR:SetSkillshot(vPred, SKILLSHOT_CIRCULAR, skillR.width, skillR.delay, skillR.speed, false)
 	
-		W:SetAOE(true)
-		R:SetAOE(true)
+		skillW:SetAOE(true)
+		skillR:SetAOE(true)
 		
 		EnemyMinions = minionManager(MINION_ENEMY,625,myHero,MINION_SORT_HEALTH_ASC)
 		JungleMinions = minionManager(MINION_JUNGLE,625,myHero,MINION_SORT_HEALTH_ASC)
@@ -66,30 +76,30 @@ function Menu()
 		
 		Menu = scriptConfig("OverWeight Annie", "Annie")
 		
-		Menu:addSubMenu("OverWeight - Combo", "combo")
+		Menu:addSubMenu("OverWeight - Combo Settings", "combo")
 			Menu.combo:addParam("comboKey", "Combo Key (SBTW default)", SCRIPT_PARAM_ONKEYDOWN, false, 32)
 			Menu.combo:addParam("useR", "Use R when target can die", SCRIPT_PARAM_ONOFF, false)
 			Menu.combo:addParam("stunOn", "Use R if can stun", SCRIPT_PARAM_LIST,3,{"No","1 targets","2 targets","3 targets","4 targets","5 targets"})
 			Menu.combo:addParam("comboItems", "Use Items", SCRIPT_PARAM_ONOFF, true)
 			Menu.combo:permaShow("comboKey")
 			
-		Menu:addSubMenu("OverWeight - Harass", "harass")
+		Menu:addSubMenu("OverWeight - Harass Settings", "harass")
 			Menu.harass:addParam("harassKey", "Harass key (A)", SCRIPT_PARAM_ONKEYDOWN, false, GetKey('A'))
 			Menu.harass:addParam("harassMode", "Harass Mode", SCRIPT_PARAM_LIST, 1, { "Q", "Q+W" })
 			Menu.harass:addParam("autoW", "Auto W if enemy in range", SCRIPT_PARAM_ONOFF, false)
 			Menu.harass:addParam("harassMana", "Min. Mana Percent: ", SCRIPT_PARAM_SLICE, 50, 0, 100, 0)
 			Menu.harass:permaShow("harassKey")
 
-		Menu:addSubMenu("OverWeight - Farming", "farming")
+		Menu:addSubMenu("OverWeight - Farming Settings", "farming")
 			Menu.farming:addParam("farmKey", "Auto Farm with", SCRIPT_PARAM_LIST,2,{"No","Only Q","Q+W"})
 			Menu.farming:addParam("stunOn", "Stop Farming when stun avaliable", SCRIPT_PARAM_ONOFF, true)
 			Menu.farming:addParam("farmingMana", "Min. Mana Percent: ", SCRIPT_PARAM_SLICE, 50, 0, 100, 0)
 			
-		Menu:addSubMenu("OverWeight - Jungle/Lane Clear", "clear")
+		Menu:addSubMenu("OverWeight - Jungle/Lane Clear Settings", "clear")
 			Menu.clear:addParam("clearKey", "Jungle/Lane Clear Key (V)", SCRIPT_PARAM_ONKEYDOWN, false, GetKey('V'))
 			Menu.clear:addParam("clearMode", "Clear Mode", SCRIPT_PARAM_LIST, 1, { "Q", "Q+W" })
 
-		Menu:addSubMenu("OverWeight - KillSteal", "killsteal")
+		Menu:addSubMenu("OverWeight - KillSteal Settings", "killsteal")
 			Menu.killsteal:addParam("useks", "Kill Steal", SCRIPT_PARAM_ONOFF, true)
 			Menu.killsteal:addParam("qks", "Use (Q) to KS", SCRIPT_PARAM_ONOFF, true)
 			Menu.killsteal:addParam("wks", "Use (W) to KS", SCRIPT_PARAM_ONOFF, true)
@@ -97,7 +107,7 @@ function Menu()
 			Menu.killsteal:addParam("Ignite", "Auto Ignite", SCRIPT_PARAM_ONOFF, true)
 			Menu.killsteal:permaShow("useKS")
 			
-		Menu:addSubMenu("OverWeight - Drawing Settings]", "drawing")
+		Menu:addSubMenu("OverWeight - Drawing Settings", "drawing")
 			Menu.drawing:addParam("disableAll", "Disable All Ranges Drawing", SCRIPT_PARAM_ONOFF, false)
 			Menu.drawing:addParam("drawText", "Draw Enemy Text", SCRIPT_PARAM_ONOFF, true)
 			Menu.drawing:addParam("drawTargetText", "Draw Who I'm Targetting", SCRIPT_PARAM_ONOFF, true)
@@ -105,36 +115,17 @@ function Menu()
 			Menu.drawing:addParam("drawR", "Draw (R) Range", SCRIPT_PARAM_ONOFF, false)
 	
 		Menu:addSubMenu("OverWeight - Misc Settings", "misc")
-			Menu.misc:addParam("stunCharge", "Auto Charge Stun with (E)"
-			Menu.misc:addParam("jumpAllies", "Jump To Allies if In Danger", SCRIPT_PARAM_ONOFF, true)
-			Menu.misc:addParam("ZWItems", "Auto Zhonyas/Wooglets", SCRIPT_PARAM_ONOFF, true)
-			Menu.misc:addParam("ZWHealth", "Min Health % for Zhonyas/Wooglets", SCRIPT_PARAM_SLICE, 15, 0, 100, -1)
-			Menu.misc:addParam("aHP", "Auto Health Pots", SCRIPT_PARAM_ONOFF, true)
-			Menu.misc:addParam("HPHealth", "Min % for Health Pots", SCRIPT_PARAM_SLICE, 50, 0, 100, -1)
-			Menu.misc:permaShow("wardJumpKey")
-		---<
-		---> Orbwalking Menu
-		KatarinaMenu:addSubMenu("[" .. myHero.charName .. "] - Orbwalking Settings", "Orbwalking")
-			kSOW:LoadToMenu(KatarinaMenu.Orbwalking)
-		---<
-		---> Version Info
-		KatarinaMenu:addParam("kataVer", "Version: ", SCRIPT_PARAM_INFO, version)
-		---<
-		---> Target Selector		
-			TargetSelector = TargetSelector(TARGET_LESS_CAST, SkillE.range, DAMAGE_MAGIC, true)
-			TargetSelector.name = "Katarina"
-			KatarinaMenu:addTS(TargetSelector)
-		---<
-		---> Arrange Priorities
-			if heroManager.iCount < 10 then -- borrowed from Sidas Auto Carry, modified to 3v3
-	   			script_Messager("Too few champions to arrange priority!")
-			elseif heroManager.iCount == 6 and TTMAP then
-				ArrangeTTPriorities()
-			else
-				ArrangePriorities()
-			end
-		---<
-	---<
-	--- Main Menu ---
+			Menu.misc:addParam("autoE", "Auto (E)", SCRIPT_PARAM_ONOFF, true)
+			Menu.misc:addParam("stunCharge", "Auto Charge Stun with (E)", SCRIPT_PARAM_ONOFF, false)
+			Menu.misc:addParam("fountain", "Charge Stun at fountain", SCRIPT_PARAM_ONOFF, true)
+			Menu.misc:addParam("AutoLevel","Auto level", SCRIPT_PARAM_ONOFF, true)
+
+		Menu:addSubMenu("OverWeight - Orbwalking Settings", "Orbwalking")
+			mSOW:LoadToMenu(Menu.Orbwalking)
+
+			TargetSelector = TargetSelector(TARGET_LESS_CAST, 625, DAMAGE_MAGIC, true)
+			TargetSelector.name = "Annie"
+			Menu:addTS(TargetSelector)
 end
 		
+
