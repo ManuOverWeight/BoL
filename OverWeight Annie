@@ -64,4 +64,77 @@ end
 
 function Menu()
 		
+		Menu = scriptConfig("OverWeight Annie", "Annie")
+		
+		Menu:addSubMenu("OverWeight - Combo", "combo")
+			Menu.combo:addParam("comboKey", "Combo Key (SBTW default)", SCRIPT_PARAM_ONKEYDOWN, false, 32)
+			Menu.combo:addParam("useR", "Use R when target can die", SCRIPT_PARAM_ONOFF, false)
+			Menu.combo:addParam("stunOn", "Use R if can stun", SCRIPT_PARAM_LIST,3,{"No","1 targets","2 targets","3 targets","4 targets","5 targets"})
+			Menu.combo:addParam("comboItems", "Use Items", SCRIPT_PARAM_ONOFF, true)
+			Menu.combo:permaShow("comboKey")
+			
+		Menu:addSubMenu("OverWeight - Harass", "harass")
+			Menu.harass:addParam("harassKey", "Harass key (A)", SCRIPT_PARAM_ONKEYDOWN, false, GetKey('A'))
+			Menu.harass:addParam("harassMode", "Harass Mode", SCRIPT_PARAM_LIST, 1, { "Q", "Q+W" })
+			Menu.harass:addParam("autoW", "Auto W if enemy in range", SCRIPT_PARAM_ONOFF, false)
+			Menu.harass:addParam("harassMana", "Min. Mana Percent: ", SCRIPT_PARAM_SLICE, 50, 0, 100, 0)
+			Menu.harass:permaShow("harassKey")
+
+		Menu:addSubMenu("OverWeight - Farming", "farming")
+			Menu.farming:addParam("farmKey", "Auto Farm with", SCRIPT_PARAM_LIST,2,{"No","Only Q","Q+W"})
+			Menu.farming:addParam("stunOn", "Stop Farming when stun avaliable", SCRIPT_PARAM_ONOFF, true)
+			Menu.farming:addParam("farmingMana", "Min. Mana Percent: ", SCRIPT_PARAM_SLICE, 50, 0, 100, 0)
+			
+		Menu:addSubMenu("OverWeight - Jungle/Lane Clear", "clear")
+			Menu.clear:addParam("clearKey", "Jungle/Lane Clear Key (V)", SCRIPT_PARAM_ONKEYDOWN, false, GetKey('V'))
+			Menu.clear:addParam("clearMode", "Clear Mode", SCRIPT_PARAM_LIST, 1, { "Q", "Q+W" })
+
+		Menu:addSubMenu("OverWeight - KillSteal", "killsteal")
+			Menu.killsteal:addParam("useks", "Kill Steal", SCRIPT_PARAM_ONOFF, true)
+			Menu.killsteal:addParam("qks", "Use (Q) to KS", SCRIPT_PARAM_ONOFF, true)
+			Menu.killsteal:addParam("wks", "Use (W) to KS", SCRIPT_PARAM_ONOFF, true)
+			Menu.killsteal:addParam("rks", "Use (R) to KS", SCRIPT_PARAM_ONOFF, true)
+			Menu.killsteal:addParam("Ignite", "Auto Ignite", SCRIPT_PARAM_ONOFF, true)
+			Menu.killsteal:permaShow("useKS")
+			
+		Menu:addSubMenu("OverWeight - Drawing Settings]", "drawing")
+			Menu.drawing:addParam("disableAll", "Disable All Ranges Drawing", SCRIPT_PARAM_ONOFF, false)
+			Menu.drawing:addParam("drawText", "Draw Enemy Text", SCRIPT_PARAM_ONOFF, true)
+			Menu.drawing:addParam("drawTargetText", "Draw Who I'm Targetting", SCRIPT_PARAM_ONOFF, true)
+			Menu.drawing:addParam("drawQ", "Draw (Q/W) Range", SCRIPT_PARAM_ONOFF, true)
+			Menu.drawing:addParam("drawR", "Draw (R) Range", SCRIPT_PARAM_ONOFF, false)
+	
+		Menu:addSubMenu("OverWeight - Misc Settings", "misc")
+			Menu.misc:addParam("stunCharge", "Auto Charge Stun with (E)"
+			Menu.misc:addParam("jumpAllies", "Jump To Allies if In Danger", SCRIPT_PARAM_ONOFF, true)
+			Menu.misc:addParam("ZWItems", "Auto Zhonyas/Wooglets", SCRIPT_PARAM_ONOFF, true)
+			Menu.misc:addParam("ZWHealth", "Min Health % for Zhonyas/Wooglets", SCRIPT_PARAM_SLICE, 15, 0, 100, -1)
+			Menu.misc:addParam("aHP", "Auto Health Pots", SCRIPT_PARAM_ONOFF, true)
+			Menu.misc:addParam("HPHealth", "Min % for Health Pots", SCRIPT_PARAM_SLICE, 50, 0, 100, -1)
+			Menu.misc:permaShow("wardJumpKey")
+		---<
+		---> Orbwalking Menu
+		KatarinaMenu:addSubMenu("[" .. myHero.charName .. "] - Orbwalking Settings", "Orbwalking")
+			kSOW:LoadToMenu(KatarinaMenu.Orbwalking)
+		---<
+		---> Version Info
+		KatarinaMenu:addParam("kataVer", "Version: ", SCRIPT_PARAM_INFO, version)
+		---<
+		---> Target Selector		
+			TargetSelector = TargetSelector(TARGET_LESS_CAST, SkillE.range, DAMAGE_MAGIC, true)
+			TargetSelector.name = "Katarina"
+			KatarinaMenu:addTS(TargetSelector)
+		---<
+		---> Arrange Priorities
+			if heroManager.iCount < 10 then -- borrowed from Sidas Auto Carry, modified to 3v3
+	   			script_Messager("Too few champions to arrange priority!")
+			elseif heroManager.iCount == 6 and TTMAP then
+				ArrangeTTPriorities()
+			else
+				ArrangePriorities()
+			end
+		---<
+	---<
+	--- Main Menu ---
+end
 		
