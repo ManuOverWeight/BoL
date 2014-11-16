@@ -1,0 +1,10 @@
+--[[
+
+	 OverWeight Annie by ManuOverWeight
+	 version: 1.0
+	 16/11/2014
+	
+]]--
+
+
+if myHero.charName ~= "Annie" then return end
